@@ -795,6 +795,16 @@ button, input, select {
   padding: 0.9rem 1rem;
 }
 
+body.theme-dark .settings-form input {
+  color: #1f2430;
+  caret-color: #1f2430;
+}
+
+body.theme-dark .settings-form input::placeholder {
+  color: #6a6a6a;
+  opacity: 1;
+}
+
 .settings-form .role-choice {
   flex-wrap: wrap;
 }
