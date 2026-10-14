@@ -3,6 +3,7 @@ require __DIR__ . '/includes/app.php';
 requireAuth();
 
 $user = currentUser();
+$settingsError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_update'])) {
     $name = trim((string)($_POST['name'] ?? ''));
@@ -10,7 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_update'])) {
     $role = in_array((string)($_POST['role'] ?? 'aluno'), ['aluno', 'professor'], true) ? $_POST['role'] : 'aluno';
     $password = (string)($_POST['password'] ?? '');
 
-    if ($name !== '' && $email !== '') {
+    if (!isNameLengthValid($name)) {
+        $settingsError = 'O nome deve ter no máximo 15 caracteres.';
+    } elseif ($name !== '' && $email !== '') {
         if ($password !== '') {
             $stmt = db()->prepare('UPDATE users SET name = :name, email = :email, password_hash = :hash, role = :role WHERE id = :userId');
             $stmt->execute([
@@ -55,6 +58,9 @@ $user = currentUser();
   <?php renderTopBar('configuracoes'); ?>
 
   <main class="page-shell">
+    <?php if ($settingsError !== ''): ?>
+      <div hidden data-alert-message="<?= htmlspecialchars($settingsError, ENT_QUOTES, 'UTF-8') ?>"></div>
+    <?php endif; ?>
     <div class="settings-box">
       <div class="settings-header">Configurações</div>
 
@@ -66,7 +72,7 @@ $user = currentUser();
 
         <div class="field-group">
           <label for="name">Nome</label>
-          <input id="name" name="name" type="text" value="<?= htmlspecialchars($user['name']) ?>" required />
+          <input id="name" name="name" type="text" maxlength="15" value="<?= htmlspecialchars($user['name']) ?>" required />
         </div>
 
         <div class="field-group">
@@ -90,7 +96,7 @@ $user = currentUser();
 
         <div class="field-group full settings-actions">
           <button type="submit" name="settings_update" value="1" class="primary-btn">Salvar edições</button>
-          <button type="submit" name="delete_account" value="1" class="danger-btn" onclick="return confirm('Tem certeza que deseja excluir permanentemente sua conta?');">Excluir conta</button>
+          <button type="submit" name="delete_account" value="1" class="danger-btn" data-confirm-message="Tem certeza que deseja excluir permanentemente sua conta?">Excluir conta</button>
         </div>
       </form>
     </div>

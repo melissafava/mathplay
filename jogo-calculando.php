@@ -69,6 +69,7 @@ $csrf = csrfToken();
   <section class="game-over" id="gameOver" hidden role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
     <div class="game-over__card">
       <h2 id="gameOverTitle">Fim de Jogo</h2>
+      <p id="gameOverFeedback" class="game-over__feedback" hidden></p>
       <p id="gameOverSummary"></p>
       <p id="saveStatus" class="save-status" aria-live="polite">Salvando sua partida...</p>
       <button type="button" class="secondary-btn" id="retrySave" hidden>Tentar salvar novamente</button>

@@ -64,6 +64,12 @@ function verifyCsrfToken(string $token): bool
     return !empty($_SESSION['csrf_token']) && hash_equals((string)$_SESSION['csrf_token'], $token);
 }
 
+function isNameLengthValid(string $name): bool
+{
+    $matchedCharacters = preg_match_all('/./us', $name, $characters);
+    return $matchedCharacters !== false && $matchedCharacters <= 15;
+}
+
 function currentUser(): ?array
 {
     if (!isLoggedIn()) {

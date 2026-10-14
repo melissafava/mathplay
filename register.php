@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($name === '' || $email === '' || $password === '') {
         $errors[] = 'Preencha nome, e-mail e senha para continuar.';
+    } elseif (!isNameLengthValid($name)) {
+        $errors[] = 'O nome deve ter no máximo 15 caracteres.';
     } else {
         $exists = db()->prepare('SELECT 1 FROM users WHERE email = :email LIMIT 1');
         $exists->execute(['email' => $email]);
@@ -29,20 +31,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $userId = (int)db()->lastInsertId();
             ensureUserProgress($userId);
+            $_SESSION['new_account_defaults'] = true;
             redirect('login.php');
         }
     }
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="auth-page">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MathPlay | Cadastro</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <script defer src="assets/js/app.js"></script>
 </head>
-<body>
+<body class="auth-page">
   <main class="auth-shell">
     <div class="auth-card">
       <div class="auth-illustration">
@@ -54,15 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <?php if ($errors): ?>
-          <div class="alert-box" style="background:#ffe2e2;color:#9b1c1c;padding:12px 14px;border-radius:12px;margin-bottom:12px;">
-            <?= htmlspecialchars($errors[0]) ?>
-          </div>
+          <div hidden data-alert-message="<?= htmlspecialchars($errors[0], ENT_QUOTES, 'UTF-8') ?>"></div>
         <?php endif; ?>
 
         <form class="auth-form" method="post">
           <div class="field-group">
             <label for="name">Nome</label>
-            <input id="name" name="name" type="text" placeholder="Seu nome" required />
+            <input id="name" name="name" type="text" placeholder="Seu nome" maxlength="15" required />
           </div>
 
           <div class="field-group">

@@ -96,12 +96,15 @@ INSERT OR IGNORE INTO achievements (id, name, description, icon) VALUES
 
 INSERT OR IGNORE INTO catalog_items (id, type, key_name, label, color, price, is_free, default_equipped, asset_path) VALUES
   (1, 'color', 'amarelo', 'Amarelo', '#ffcf4a', 0, 1, 1, NULL),
-  (2, 'color', 'verde', 'Verde', '#c1cf35', 30, 0, 0, NULL),
-  (3, 'color', 'azul', 'Azul', '#48bce1', 30, 0, 0, NULL),
-  (4, 'color', 'rosa', 'Rosa', '#ff6ca0', 30, 0, 0, NULL),
-  (5, 'color', 'roxo', 'Roxo', '#cb6ce6', 30, 0, 0, NULL),
+  (2, 'color', 'verde', 'Verde', '#c1cf35', 60, 0, 0, NULL),
+  (3, 'color', 'azul', 'Azul', '#48bce1', 60, 0, 0, NULL),
+  (4, 'color', 'rosa', 'Rosa', '#ff6ca0', 60, 0, 0, NULL),
+  (5, 'color', 'roxo', 'Roxo', '#cb6ce6', 60, 0, 0, NULL),
   (6, 'face', 'rosto1', 'Rosto 1', NULL, 0, 1, 1, 'rosto1.svg'),
-  (7, 'face', 'rosto2', 'Rosto 2', NULL, 50, 0, 0, 'rosto2.svg'),
-  (8, 'face', 'rosto3', 'Rosto 3', NULL, 50, 0, 0, 'rosto3.svg'),
-  (9, 'face', 'rosto4', 'Rosto 4', NULL, 50, 0, 0, 'rosto4.svg'),
-  (10, 'face', 'rosto5', 'Rosto 5', NULL, 50, 0, 0, 'rosto5.svg');
+  (7, 'face', 'rosto2', 'Rosto 2', NULL, 100, 0, 0, 'rosto2.svg'),
+  (8, 'face', 'rosto3', 'Rosto 3', NULL, 100, 0, 0, 'rosto3.svg'),
+  (9, 'face', 'rosto4', 'Rosto 4', NULL, 100, 0, 0, 'rosto4.svg'),
+  (10, 'face', 'rosto5', 'Rosto 5', NULL, 100, 0, 0, 'rosto5.svg');
+
+UPDATE catalog_items SET price = 60 WHERE type = 'color' AND is_free = 0;
+UPDATE catalog_items SET price = 100 WHERE type = 'face' AND is_free = 0;

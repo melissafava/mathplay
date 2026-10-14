@@ -32,7 +32,22 @@ body.theme-dark {
   --auth-bg: #121923;
 }
 
+body.auth-page {
+  --text: #2d2d2d;
+  --muted: #6a6a6a;
+  --card: #ffffff;
+  --panel: #f7f7f7;
+  --outline: #f22373;
+  --auth-bg: #fffafc;
+  background: var(--auth-bg);
+  color: var(--text);
+}
+
 * { box-sizing: border-box; }
+
+html.auth-page {
+  font-size: 100%;
+}
 
 html {
   scroll-behavior: smooth;
@@ -170,11 +185,14 @@ button, input, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2.5rem;
+  padding: 0;
+  overflow: hidden;
 }
 
 .auth-illustration img {
-  width: min(360px, 90%);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .auth-form-side {
@@ -191,7 +209,7 @@ button, input, select {
 }
 
 .auth-brand img {
-  width: 180px;
+  width: min(320px, 90%);
 }
 
 .auth-form {
@@ -322,14 +340,18 @@ button, input, select {
   padding: 1.5rem;
   color: #fff;
   min-height: 440px;
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .welcome-panel h1 {
+  max-width: 100%;
   margin: 0.5rem 0 1rem;
   font-size: clamp(2rem, 2vw, 2.5rem);
+  overflow-wrap: anywhere;
 }
 
 .avatar-box {
@@ -1047,7 +1069,7 @@ button, input, select {
   z-index: 50;
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding: 8px;
   background: rgba(15, 18, 27, 0.66);
 }
 
@@ -1057,32 +1079,58 @@ button, input, select {
 
 .game-over__card {
   width: min(480px, 100%);
-  padding: 2rem;
-  border-radius: 26px;
+  max-height: calc(100svh - 16px);
+  overflow-y: auto;
+  padding: clamp(12px, 2.2svh, 20px);
+  border-radius: 20px;
   background: var(--card);
   color: var(--text);
+  font-size: clamp(12px, 1.8svh, 16px);
   text-align: center;
   box-shadow: 0 24px 70px rgba(0,0,0,0.28);
 }
 
 .game-over__card h2 {
-  margin: 0 0 0.65rem;
-  font-size: 2rem;
+  margin: 0 0 0.3em;
+  font-size: 1.6em;
+}
+
+.game-over__feedback {
+  margin: 0 0 0.55em;
+  padding: 0.55em 0.7em;
+  border-radius: 14px;
+  background: rgba(255, 145, 77, 0.14);
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.game-over__feedback[hidden] {
+  display: none;
 }
 
 .save-status {
-  min-height: 1.5em;
+  min-height: 1.2em;
+  margin: 0.45em 0;
   font-weight: 700;
 }
 
 .game-over__actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 0.5em;
+  margin-top: 0.65em;
 }
 
 .game-over__actions > * {
   flex: 1;
+  min-width: 0;
+}
+
+.game-over__actions button {
+  min-height: 40px;
+  padding: 0.55em 0.7em;
+  font-size: 1em;
+  line-height: 1.15;
 }
 
 .game-over__actions .danger-btn {
@@ -1095,6 +1143,68 @@ button, input, select {
 .game-over__actions button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.message-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 18, 27, 0.58);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.message-modal[hidden] {
+  display: none;
+}
+
+.message-modal.is-visible {
+  opacity: 1;
+}
+
+.message-modal__card {
+  width: min(440px, 100%);
+  padding: 1.75rem;
+  border-radius: 24px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  transform: translateY(8px) scale(0.98);
+  transition: transform 0.18s ease;
+}
+
+.message-modal.is-visible .message-modal__card {
+  transform: translateY(0) scale(1);
+}
+
+.message-modal__card h2 {
+  margin: 0 0 0.75rem;
+}
+
+.message-modal__card p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.message-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.message-modal__actions [hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-modal,
+  .message-modal__card {
+    transition: none;
+  }
 }
 
 .visually-hidden {
@@ -1115,6 +1225,10 @@ button, input, select {
   .store-layout,
   .settings-form {
     grid-template-columns: 1fr;
+  }
+
+  .auth-illustration {
+    aspect-ratio: 4 / 3;
   }
 
   .topbar {
@@ -1175,8 +1289,7 @@ button, input, select {
   .settings-actions,
   .role-choice,
   .store-panel__actions,
-  .catalog-actions,
-  .game-over__actions {
+  .catalog-actions {
     grid-template-columns: 1fr;
     display: grid;
   }

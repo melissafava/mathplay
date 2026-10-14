@@ -5,6 +5,9 @@ if (isLoggedIn()) {
     redirect('inicio.php');
 }
 
+$resetDefaultsForNewAccount = !empty($_SESSION['new_account_defaults']);
+unset($_SESSION['new_account_defaults']);
+
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim((string)($_POST['email'] ?? ''));
@@ -28,14 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="auth-page">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MathPlay | Login</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <script defer src="assets/js/app.js"></script>
 </head>
-<body>
+<body class="auth-page"<?= $resetDefaultsForNewAccount ? ' data-reset-defaults="true"' : '' ?>>
   <main class="auth-shell">
     <div class="auth-card">
       <div class="auth-illustration">
@@ -47,9 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <?php if ($errors): ?>
-          <div class="alert-box" style="background:#ffe2e2;color:#9b1c1c;padding:12px 14px;border-radius:12px;margin-bottom:12px;">
-            <?= htmlspecialchars($errors[0]) ?>
-          </div>
+          <div hidden data-alert-message="<?= htmlspecialchars($errors[0], ENT_QUOTES, 'UTF-8') ?>"></div>
         <?php endif; ?>
 
         <form class="auth-form" method="post">

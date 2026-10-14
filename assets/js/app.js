@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const body = document.body;
+  const isAuthPage = body.classList.contains('auth-page');
   const themeToggle = document.getElementById('themeToggle');
   const fontButtons = document.querySelectorAll('[data-font]');
 
@@ -11,7 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  applyTheme(localStorage.getItem('mathplay-theme') || 'light');
+  if (body.dataset.resetDefaults === 'true') {
+    localStorage.setItem('mathplay-theme', 'light');
+    localStorage.setItem('mathplay-font-scale', '1');
+  }
+
+  if (isAuthPage) {
+    body.classList.remove('theme-dark');
+  } else {
+    applyTheme(localStorage.getItem('mathplay-theme') || 'light');
+  }
 
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
@@ -19,13 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const applyFontScale = (scale) => {
+  const applyFontScale = (scale, persist = true) => {
     document.documentElement.style.fontSize = `${scale * 100}%`;
-    localStorage.setItem('mathplay-font-scale', String(scale));
+    if (persist) localStorage.setItem('mathplay-font-scale', String(scale));
   };
 
   const savedScale = Number(localStorage.getItem('mathplay-font-scale') || '1');
-  applyFontScale(Number.isFinite(savedScale) ? Math.min(1.7, Math.max(0.8, savedScale)) : 1);
+  const fontScale = isAuthPage
+    ? 1
+    : (Number.isFinite(savedScale) ? Math.min(1.7, Math.max(0.8, savedScale)) : 1);
+  applyFontScale(fontScale, !isAuthPage);
 
   fontButtons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -37,9 +50,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const modal = document.createElement('div');
+  modal.className = 'message-modal';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="message-modal__card" role="dialog" aria-modal="true" aria-labelledby="messageModalTitle" aria-describedby="messageModalText">
+      <h2 id="messageModalTitle">Aviso</h2>
+      <p id="messageModalText"></p>
+      <div class="message-modal__actions">
+        <button type="button" class="secondary-btn" data-modal-cancel hidden>Cancelar</button>
+        <button type="button" class="primary-btn" data-modal-confirm>Entendi</button>
+      </div>
+    </div>
+  `;
+  body.append(modal);
+
+  const modalCard = modal.querySelector('.message-modal__card');
+  const modalTitle = modal.querySelector('#messageModalTitle');
+  const modalText = modal.querySelector('#messageModalText');
+  const modalCancel = modal.querySelector('[data-modal-cancel]');
+  const modalConfirm = modal.querySelector('[data-modal-confirm]');
+  let modalCloseTimer = null;
+  let modalReturnFocus = null;
+  let modalConfirmAction = null;
+
+  const closeModal = (confirmed = false) => {
+    if (modal.hidden) return;
+    modal.classList.remove('is-visible');
+    const confirmAction = modalConfirmAction;
+    modalConfirmAction = null;
+    modalCloseTimer = setTimeout(() => {
+      modal.hidden = true;
+      if (modalReturnFocus instanceof HTMLElement) modalReturnFocus.focus();
+      modalReturnFocus = null;
+    }, 180);
+    if (confirmed && confirmAction) confirmAction();
+  };
+
+  const showModal = (message, { confirmation = false, onConfirm = null } = {}) => {
+    clearTimeout(modalCloseTimer);
+    modalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    modalConfirmAction = onConfirm;
+    modalTitle.textContent = confirmation ? 'Confirmar ação' : 'Aviso';
+    modalText.textContent = message;
+    modalCancel.hidden = !confirmation;
+    modalConfirm.textContent = confirmation ? 'Confirmar' : 'Entendi';
+    modal.hidden = false;
+    modal.classList.remove('is-visible');
+    requestAnimationFrame(() => modal.classList.add('is-visible'));
+    modalConfirm.focus();
+  };
+
+  modalConfirm.addEventListener('click', () => closeModal(true));
+  modalCancel.addEventListener('click', () => closeModal());
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (modal.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeModal();
+    } else if (event.key === 'Tab') {
+      const focusable = [...modalCard.querySelectorAll('button:not([hidden])')];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
+  document.querySelectorAll('[data-confirm-message]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      const form = button.form;
+      if (!form) return;
+      showModal(button.dataset.confirmMessage, {
+        confirmation: true,
+        onConfirm: () => form.requestSubmit(button),
+      });
+    });
+  });
+
   const alertMessage = document.querySelector('[data-alert-message]');
   if (alertMessage?.dataset.alertMessage) {
-    window.alert(alertMessage.dataset.alertMessage);
+    showModal(alertMessage.dataset.alertMessage);
   }
 
   const catalogOptions = [...document.querySelectorAll('[data-catalog-option]')];
@@ -108,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const timerBar = document.getElementById('timerBar');
   const timerStars = [...document.querySelectorAll('[data-timer-star]')];
   const gameOver = document.getElementById('gameOver');
+  const gameOverFeedback = document.getElementById('gameOverFeedback');
   const gameOverSummary = document.getElementById('gameOverSummary');
   const saveStatus = document.getElementById('saveStatus');
   const retrySave = document.getElementById('retrySave');
@@ -347,6 +448,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const feedbackMessage = reason === 'wrong'
+      ? `Essa não! A resposta era ${gameType === 'fracionando' ? `${currentFraction[0]}/${currentFraction[1]}` : currentAnswer}. Mais sorte da próxima vez!`
+      : reason === 'time'
+        ? `O tempo acabou! A resposta era ${gameType === 'fracionando' ? `${currentFraction[0]}/${currentFraction[1]}` : currentAnswer}. Mais sorte da próxima vez!`
+        : '';
+    if (feedbackMessage && resultBox) resultBox.textContent = feedbackMessage;
+    gameOverFeedback.textContent = feedbackMessage;
+    gameOverFeedback.hidden = !feedbackMessage;
     gameOverSummary.textContent = `${correctCount} acertos e ${starsEarned} estrelas conquistadas nesta partida.`;
     gameOver.hidden = false;
     restartButton.disabled = true;
@@ -382,7 +491,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     wrongCount = 1;
-    if (resultBox) resultBox.textContent = 'Essa não! Vamos tentar de novo na próxima partida.';
     finishGame('wrong');
   };
 
