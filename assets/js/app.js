@@ -2,7 +2,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const body = document.body;
   const isAuthPage = body.classList.contains('auth-page');
   const themeToggle = document.getElementById('themeToggle');
+  const emojiToggle = document.getElementById('emojiToggle');
   const fontButtons = document.querySelectorAll('[data-font]');
+  const applyEmojiMode = (enabled) => {
+    body.classList.toggle('emoji-mode', enabled);
+    localStorage.setItem('mathplay-emoji-mode', String(enabled));
+    if (emojiToggle) emojiToggle.setAttribute('aria-pressed', String(enabled));
+  };
+
+  if (body.dataset.resetDefaults === 'true') {
+    localStorage.setItem('mathplay-emoji-mode', 'false');
+  }
+
+  applyEmojiMode(localStorage.getItem('mathplay-emoji-mode') === 'true');
+
+  if (emojiToggle) {
+    emojiToggle.addEventListener('click', () => {
+      applyEmojiMode(!body.classList.contains('emoji-mode'));
+    });
+  }
 
   const applyTheme = (theme) => {
     body.classList.toggle('theme-dark', theme === 'dark');
@@ -164,7 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (selectedItem) selectedItem.value = hasSelection ? selection.dataset.itemId : '';
       if (actionButton) {
         actionButton.disabled = !hasSelection;
-        actionButton.textContent = hasSelection && selection.dataset.owned === 'true' ? 'Vestir' : 'Adicionar';
+        const label = actionButton.querySelector('[data-item-action-label]');
+        const emojiLabel = actionButton.querySelector('[data-item-action-emoji]');
+        if (label) label.textContent = hasSelection && selection.dataset.owned === 'true' ? 'Vestir' : 'Adicionar';
+        if (emojiLabel) emojiLabel.textContent = hasSelection && selection.dataset.owned === 'true' ? '👕❕' : '💸👕❕';
       }
       if (selectedAction) {
         selectedAction.value = hasSelection && selection.dataset.owned === 'true' ? 'equip' : 'purchase';
@@ -210,6 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameOver = document.getElementById('gameOver');
   const gameOverFeedback = document.getElementById('gameOverFeedback');
   const gameOverSummary = document.getElementById('gameOverSummary');
+  const standardGameSummary = gameOverSummary?.querySelector('[data-game-summary-standard]');
+  const emojiGameSummaryCorrect = gameOverSummary?.querySelector('[data-game-summary-correct]');
+  const emojiGameSummaryStars = gameOverSummary?.querySelector('[data-game-summary-stars]');
   const saveStatus = document.getElementById('saveStatus');
   const retrySave = document.getElementById('retrySave');
   const restartButton = document.getElementById('restartGame');
@@ -456,7 +480,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (feedbackMessage && resultBox) resultBox.textContent = feedbackMessage;
     gameOverFeedback.textContent = feedbackMessage;
     gameOverFeedback.hidden = !feedbackMessage;
-    gameOverSummary.textContent = `${correctCount} acertos e ${starsEarned} estrelas conquistadas nesta partida.`;
+    if (standardGameSummary) standardGameSummary.textContent = `${correctCount} acertos e ${starsEarned} estrelas conquistadas nesta partida.`;
+    if (emojiGameSummaryCorrect) emojiGameSummaryCorrect.textContent = String(correctCount);
+    if (emojiGameSummaryStars) emojiGameSummaryStars.textContent = String(starsEarned);
     gameOver.hidden = false;
     restartButton.disabled = true;
     homeButton.disabled = true;

@@ -41,18 +41,18 @@ unset($_SESSION['catalog_notice']);
     <div class="store-layout">
       <aside class="store-panel">
         <div class="store-panel__profile">
-          <a href="inicio.php" class="primary-btn store-back">Voltar</a>
+          <a href="inicio.php" class="primary-btn store-back" aria-label="Voltar"><span class="standard-only">Voltar</span><span class="emoji-only" aria-hidden="true">←</span></a>
           <div class="store-panel__avatar avatar-stage" data-avatar-stage style="--avatar-color:<?= htmlspecialchars($avatar['color']['color'] ?? '#ffcf4a') ?>;">
             <span class="avatar-star" aria-hidden="true"></span>
             <img class="avatar-face" src="<?= htmlspecialchars($avatar['face']['asset_path'] ?? 'rosto1.svg') ?>" alt="Rosto do avatar" />
           </div>
           <div class="catalog-actions">
-            <button type="button" class="secondary-btn" data-preview-item disabled>Experimentar</button>
+            <button type="button" class="secondary-btn" data-preview-item disabled><span class="standard-only">Experimentar</span><span class="emoji-only">👉👕❔</span></button>
             <form method="post" data-catalog-form>
               <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>" />
               <input type="hidden" name="item_id" value="" data-selected-item />
               <input type="hidden" name="action" value="purchase" data-selected-action />
-              <button type="submit" class="primary-btn" data-item-action disabled>Adicionar</button>
+              <button type="submit" class="primary-btn" data-item-action disabled><span class="standard-only" data-item-action-label>Adicionar</span><span class="emoji-only" data-item-action-emoji>💸👕❕</span></button>
             </form>
           </div>
         </div>
@@ -70,7 +70,7 @@ unset($_SESSION['catalog_notice']);
               aria-pressed="false">
               <span class="swatch" style="background:<?= htmlspecialchars($item['color'] ?? '#ffcf4a') ?>;" aria-hidden="true"></span>
               <span class="label"><?= htmlspecialchars($item['label']) ?></span>
-              <span class="value"><?= (int)$item['price'] ?> estrelas</span>
+              <span class="value"><span class="standard-only"><?= (int)$item['price'] ?> estrelas</span><span class="emoji-only"><?= (int)$item['price'] ?> <img class="icon-image" src="estrela.svg" alt="" aria-hidden="true"></span></span>
             </button>
           <?php endforeach; ?>
         </div>

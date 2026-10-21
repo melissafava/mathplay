@@ -22,7 +22,7 @@ $avatar = renderAvatarDisplay((int)$user['id']);
     <div class="store-layout">
       <aside class="store-panel">
         <div class="store-panel__profile">
-          <a href="inicio.php" class="primary-btn store-back">Voltar</a>
+          <a href="inicio.php" class="primary-btn store-back" aria-label="Voltar"><span class="standard-only">Voltar</span><span class="emoji-only" aria-hidden="true">←</span></a>
           <div class="store-panel__avatar avatar-stage" data-avatar-stage style="--avatar-color:<?= htmlspecialchars($avatar['color']['color'] ?? '#ffcf4a') ?>;">
             <span class="avatar-star" aria-hidden="true"></span>
             <img class="avatar-face" src="<?= htmlspecialchars($avatar['face']['asset_path'] ?? 'rosto1.svg') ?>" alt="Rosto do avatar" />
@@ -36,12 +36,12 @@ $avatar = renderAvatarDisplay((int)$user['id']);
           <a href="cores.php" class="store-category-card">
             <span class="store-category-card__swatch" aria-hidden="true"></span>
             <strong>Cores</strong>
-            <span>Escolha uma cor para sua estrela!</span>
+            <span class="standard-only">Escolha uma cor para sua estrela!</span>
           </a>
           <a href="rostos.php" class="store-category-card">
             <img src="rosto1.svg" alt="" />
             <strong>Rostos</strong>
-            <span>Personalize o rosto do seu avatar!</span>
+            <span class="standard-only">Personalize o rosto do seu avatar!</span>
           </a>
         </div>
       </section>

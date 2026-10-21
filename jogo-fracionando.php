@@ -20,7 +20,7 @@ $csrf = csrfToken();
       <img src="logobranca.svg" alt="Logo MathPlay" />
     </div>
     <div class="topbar__actions">
-      <a href="inicio.php" class="topbar__logout" data-exit-game>Sair do Jogo</a>
+      <a href="inicio.php" class="topbar__logout" data-exit-game aria-label="Sair do jogo"><span class="standard-only">Sair do Jogo</span><img class="emoji-only icon-image" src="sair.svg" alt="" aria-hidden="true"></a>
     </div>
   </header>
 
@@ -35,14 +35,14 @@ $csrf = csrfToken();
             <div class="fraction-chart" id="fractionChart" role="img" aria-label="Gráfico de fração"></div>
             <div class="result-box" id="resultBox" aria-live="polite"></div>
             <div class="game-score-row">
-              <span>Acertos: <strong id="scoreValue">0</strong></span>
-              <span>Estrelas: <strong id="earnedStarsValue">0</strong></span>
+              <span><span class="standard-only">Acertos: </span><span class="emoji-only">✅ </span><strong id="scoreValue">0</strong></span>
+              <span><span class="standard-only">Estrelas: </span><img class="emoji-only icon-image" src="estrela.svg" alt="" aria-hidden="true"><strong id="earnedStarsValue">0</strong></span>
             </div>
           </div>
         </div>
 
         <div class="game-timer">
-          <div class="game-time-label">TEMPO: <strong><span id="timeValue">30</span> segundos</strong></div>
+          <div class="game-time-label"><span class="standard-only">TEMPO: </span><span class="emoji-only">⏱️ </span><strong><span id="timeValue">30</span><span class="standard-only"> segundos</span></strong></div>
           <div class="timer-track" role="progressbar" id="timerBar" aria-label="Tempo restante" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30">
             <span class="timer-track__fill" id="timerFill"></span>
           </div>
@@ -62,7 +62,7 @@ $csrf = csrfToken();
     <div class="game-over__card">
       <h2 id="gameOverTitle">Fim de Jogo</h2>
       <p id="gameOverFeedback" class="game-over__feedback" hidden></p>
-      <p id="gameOverSummary"></p>
+      <p id="gameOverSummary"><span class="standard-only" data-game-summary-standard></span><span class="emoji-only"><span data-game-summary-correct></span> ✅ · <span data-game-summary-stars></span> <img class="icon-image" src="estrela.svg" alt="" aria-hidden="true"></span></p>
       <p id="saveStatus" class="save-status" aria-live="polite">Salvando sua partida...</p>
       <button type="button" class="secondary-btn" id="retrySave" hidden>Tentar salvar novamente</button>
       <div class="game-over__actions">

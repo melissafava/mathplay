@@ -322,10 +322,14 @@ function renderTopBar(string $page = 'inicio', bool $showHome = true, bool $show
                         <span>⚙</span>
                     </a>
                 <?php endif; ?>
+                <button type="button" class="topbar__emoji" id="emojiToggle" aria-label="Ativar ou desativar emojis" aria-pressed="false">🔠</button>
                 <button type="button" class="topbar__toggle" id="themeToggle" aria-label="Alternar tema">☼</button>
                 <button type="button" class="topbar__font" data-font="decrease" aria-label="Diminuir fonte">A−</button>
                 <button type="button" class="topbar__font" data-font="increase" aria-label="Aumentar fonte">A+</button>
-                <a class="topbar__logout" href="logout.php">Sair</a>
+                <a class="topbar__logout" href="logout.php" aria-label="Sair">
+                    <span class="standard-only">Sair</span>
+                    <img class="emoji-only icon-image" src="sair.svg" alt="" aria-hidden="true" />
+                </a>
             <?php endif; ?>
         </div>
     </header>

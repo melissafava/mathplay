@@ -16,16 +16,16 @@ requireAuth();
   <?php renderTopBar('jogos'); ?>
 
   <main class="page-shell">
-    <div class="section-banner">JOGOS</div>
+    <div class="section-banner"><span class="standard-only">JOGOS</span><span class="emoji-only">🎮</span></div>
 
     <div class="game-grid">
       <a href="jogo-calculando.php" class="game-card">
         <img src="calculando.png" alt="" />
-        <span>CALCULANDO</span>
+        <span><span class="standard-only">CALCULANDO</span><span class="emoji-only">CALCULANDO 🎮</span></span>
       </a>
       <a href="jogo-fracionando.php" class="game-card">
         <img src="fracionando.png" alt="" />
-        <span>FRACIONANDO</span>
+        <span><span class="standard-only">FRACIONANDO</span><span class="emoji-only">FRACIONANDO 🎮</span></span>
       </a>
     </div>
   </main>

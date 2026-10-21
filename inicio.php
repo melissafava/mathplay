@@ -26,7 +26,7 @@ $avatar = renderAvatarDisplay((int)$user['id']);
       <section class="welcome-panel">
         <div>
           <span style="font-size:0.95rem; opacity:0.9;">Bem-vindo(a)</span>
-          <h1>Olá, <?= htmlspecialchars($user['name']) ?>!</h1>
+          <h1>Olá, <?= htmlspecialchars($user['name']) ?>!<span class="emoji-only"> 👋</span></h1>
         </div>
 
         <div class="avatar-box">
@@ -37,21 +37,24 @@ $avatar = renderAvatarDisplay((int)$user['id']);
         </div>
 
         <div class="stars-box">
-          <strong><span class="star-count-icon" aria-hidden="true"></span>Você possui <?= (int)($progress['stars'] ?? 0) ?> estrelas!</strong>
-          <span>Junte estrelas para personalizar o seu avatar!</span>
+          <strong>
+            <span class="standard-only"><span class="star-count-icon" aria-hidden="true"></span>Você possui <?= (int)($progress['stars'] ?? 0) ?> estrelas!</span>
+            <span class="emoji-only"><?= (int)($progress['stars'] ?? 0) ?><img class="icon-image" src="estrela.svg" alt="" aria-hidden="true">!</span>
+          </strong>
+          <span class="standard-only">Junte estrelas para personalizar o seu avatar!</span>
         </div>
       </section>
 
       <aside class="dashboard-card history-panel">
-        <h2>Histórico</h2>
+        <h2><span class="standard-only">Histórico</span><span class="emoji-only">⌛</span></h2>
         <div class="history-stats">
           <div class="history-stat">
-            <small>Acertos</small>
-            <strong><?= $totals['correct'] ?></strong>
+            <small class="standard-only">Acertos</small>
+            <strong><span class="standard-only"><?= $totals['correct'] ?></span><span class="emoji-only"><?= $totals['correct'] ?> ✅</span></strong>
           </div>
           <div class="history-stat" style="background:#ff6ca0;">
-            <small>Erros</small>
-            <strong><?= $totals['wrong'] ?></strong>
+            <small class="standard-only">Erros</small>
+            <strong><span class="standard-only"><?= $totals['wrong'] ?></span><span class="emoji-only"><?= $totals['wrong'] ?> ❌</span></strong>
           </div>
         </div>
 
@@ -68,8 +71,9 @@ $avatar = renderAvatarDisplay((int)$user['id']);
                     <small><?= htmlspecialchars(date('d/m/Y H:i', strtotime($entry['played_at']))) ?></small>
                   </span>
                   <span class="history-result">
-                    <?= (int)$entry['correct_answers'] ?> acertos · <?= (int)$entry['wrong_answers'] ?> erros<br />
-                    <strong><?= (int)$entry['stars_earned'] ?> ⭐</strong>
+                    <span class="standard-only"><?= (int)$entry['correct_answers'] ?> acertos · <?= (int)$entry['wrong_answers'] ?> erros</span>
+                    <span class="emoji-only"><?= (int)$entry['correct_answers'] ?> ✅ · <?= (int)$entry['wrong_answers'] ?> ❌</span><br />
+                    <strong><span class="standard-only"><?= (int)$entry['stars_earned'] ?> ⭐</span><span class="emoji-only"><?= (int)$entry['stars_earned'] ?> <img class="icon-image" src="estrela.svg" alt="" aria-hidden="true"></span></strong>
                   </span>
                 </li>
               <?php endforeach; ?>
@@ -78,8 +82,8 @@ $avatar = renderAvatarDisplay((int)$user['id']);
         </div>
 
         <div class="quick-actions">
-          <a class="action-btn" href="jogos.php">Jogos</a>
-          <a class="action-btn secondary" href="loja.php">Loja</a>
+          <a class="action-btn" href="jogos.php"><span class="standard-only">Jogos</span><span class="emoji-only">🎮</span></a>
+          <a class="action-btn secondary" href="loja.php"><span class="standard-only">Loja</span><span class="emoji-only">👕</span></a>
         </div>
       </aside>
     </div>

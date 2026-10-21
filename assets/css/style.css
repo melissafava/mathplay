@@ -72,6 +72,37 @@ body.theme-dark .section-box {
   background: var(--panel);
 }
 
+body.theme-dark .game-card,
+body.theme-dark .game-panel__body,
+body.theme-dark .answer-input,
+body.theme-dark .keypad-key,
+body.theme-dark .fraction-chart,
+body.theme-dark .fraction-choice {
+  background: #000;
+}
+
+body.theme-dark .game-panel__body,
+body.theme-dark .answer-input,
+body.theme-dark .equation,
+body.theme-dark .keypad-key,
+body.theme-dark .fraction-choice {
+  color: #fff;
+}
+
+body.theme-dark .answer-input {
+  border-color: #333;
+}
+
+body.theme-dark .number-pad,
+body.theme-dark .fraction-options {
+  background: #222;
+  border-color: #333;
+}
+
+body.theme-dark .keypad-key {
+  border-color: #333;
+}
+
 img {
   max-width: 100%;
   display: block;
@@ -118,6 +149,7 @@ button, input, select {
 
 .topbar__icon-link,
 .topbar__toggle,
+.topbar__emoji,
 .topbar__font,
 .topbar__logout {
   display: inline-flex;
@@ -136,6 +168,7 @@ button, input, select {
 
 .topbar__icon-link:hover,
 .topbar__toggle:hover,
+.topbar__emoji:hover,
 .topbar__font:hover,
 .topbar__logout:hover {
   transform: translateY(-1px);
@@ -154,6 +187,80 @@ button, input, select {
 
 .topbar__icon-link.active {
   background: rgba(255,255,255,0.28);
+}
+
+body:not(.emoji-mode) .emoji-only {
+  display: none !important;
+}
+
+.icon-image {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.16em;
+  object-fit: contain;
+}
+
+body.emoji-mode .standard-only {
+  display: none !important;
+}
+
+body.emoji-mode .emoji-only {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+body.emoji-mode .stars-box strong .emoji-only {
+  gap: 0.2em;
+}
+
+body.emoji-mode .topbar__emoji {
+  background: rgba(255,255,255,0.28);
+  font-size: 1.35rem;
+}
+
+body.emoji-mode .action-btn {
+  font-size: clamp(3rem, 7vw, 5rem);
+}
+
+body.emoji-mode .section-banner {
+  font-size: clamp(3rem, 6vw, 5rem);
+}
+
+body.emoji-mode .game-card .emoji-only {
+  font-size: 1.4em;
+}
+
+body.emoji-mode .topbar__logout .icon-image {
+  width: 2em;
+  height: 2em;
+}
+
+body.emoji-mode .stars-box strong {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+}
+
+body.emoji-mode .history-stat strong {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+body.emoji-mode .history-result .emoji-only {
+  font-size: 1.3em;
+}
+
+body.emoji-mode .store-category-card > span.standard-only {
+  display: none !important;
+}
+
+body.emoji-mode .store-category-card img,
+body.emoji-mode .store-category-card__swatch {
+  width: 110px;
+  height: 110px;
+}
+
+body.emoji-mode .store-category-card strong {
+  font-size: 2rem;
 }
 
 .page-shell {
@@ -611,6 +718,10 @@ button, input, select {
   border-radius: 16px;
 }
 
+body.emoji-mode .store-back {
+  font-size: 2.5rem;
+}
+
 .store-panel__actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -746,6 +857,21 @@ button, input, select {
 .catalog-actions .primary-btn,
 .catalog-actions .secondary-btn {
   border-radius: 16px;
+}
+
+body.emoji-mode .catalog-actions button {
+  min-height: 76px;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+}
+
+body.emoji-mode .catalog-card .value .emoji-only {
+  gap: 0.2em;
+  font-size: 1.45em;
+}
+
+body.emoji-mode .catalog-card .value .icon-image {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .form-row {
@@ -933,6 +1059,11 @@ body.theme-dark .settings-form input::placeholder {
   font-weight: 700;
 }
 
+body.emoji-mode .game-score-row {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  gap: 1em;
+}
+
 .status-row {
   display: flex;
   justify-content: space-between;
@@ -953,6 +1084,27 @@ body.theme-dark .settings-form input::placeholder {
   font-size: clamp(1.1rem, 2vw, 1.5rem);
   font-weight: 800;
   margin-bottom: 0.5rem;
+}
+
+body.emoji-mode .game-time-label {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+body.emoji-mode .gameOverSummary,
+body.emoji-mode #gameOverSummary {
+  font-size: 1.3em;
+}
+
+body.emoji-mode #gameOverSummary .emoji-only {
+  gap: 0.2em;
+}
+
+body.emoji-mode .game-time-label .standard-only {
+  display: none;
+}
+
+body.emoji-mode .game-time-label .emoji-only {
+  display: inline-flex;
 }
 
 .timer-track {
@@ -1398,6 +1550,7 @@ body.theme-dark .settings-form input::placeholder {
 
   .topbar__font,
   .topbar__toggle,
+  .topbar__emoji,
   .topbar__icon-link {
     min-width: 36px;
     min-height: 36px;
