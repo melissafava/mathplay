@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config.php';
+
 session_start();
 
 function db(): PDO
@@ -6,14 +8,7 @@ function db(): PDO
     static $pdo = null;
 
     if ($pdo === null) {
-        $dbFile = __DIR__ . '/../database/mathplay.db';
-        if (!file_exists($dbFile)) {
-            touch($dbFile);
-        }
-
-        $pdo = new PDO('sqlite:' . $dbFile);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $pdo = createDatabaseConnection();
         $pdo->exec('PRAGMA foreign_keys = ON;');
 
         $sql = file_get_contents(__DIR__ . '/../database/schema.sql');
