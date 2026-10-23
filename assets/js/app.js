@@ -4,6 +4,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('themeToggle');
   const emojiToggle = document.getElementById('emojiToggle');
   const fontButtons = document.querySelectorAll('[data-font]');
+  document.querySelectorAll('[data-password-length-check]').forEach((input) => {
+    const hint = input.closest('.field-group')?.querySelector('[data-password-length-hint]');
+    const updatePasswordLength = () => {
+      const length = Array.from(input.value).length;
+      const valid = length >= 5 && length <= 20;
+      input.setCustomValidity(input.value !== '' && !valid
+        ? 'A senha deve ter entre 5 e 20 caracteres.'
+        : '');
+      if (hint) {
+        hint.textContent = input.value === ''
+          ? 'Use de 5 a 20 caracteres.'
+          : `${length}/20 caracteres${valid ? '' : ' — a senha deve ter entre 5 e 20 caracteres.'}`;
+      }
+    };
+    input.addEventListener('input', updatePasswordLength);
+    updatePasswordLength();
+  });
+
   const applyEmojiMode = (enabled) => {
     body.classList.toggle('emoji-mode', enabled);
     localStorage.setItem('mathplay-emoji-mode', String(enabled));

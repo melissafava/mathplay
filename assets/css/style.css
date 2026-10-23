@@ -336,6 +336,11 @@ body.emoji-mode .store-category-card strong {
   color: var(--text);
 }
 
+.field-group .field-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .field-group input {
   border: 1px solid rgba(242, 35, 115, 0.35);
   border-radius: 14px;

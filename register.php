@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Preencha nome, e-mail e senha para continuar.';
     } elseif (!isNameLengthValid($name)) {
         $errors[] = 'O nome deve ter no máximo 15 caracteres.';
+    } elseif (!isPasswordLengthValid($password)) {
+        $errors[] = 'A senha deve ter entre 5 e 20 caracteres.';
     } else {
         $exists = db()->prepare('SELECT 1 FROM users WHERE email = :email LIMIT 1');
         $exists->execute(['email' => $email]);
@@ -75,7 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div class="field-group">
             <label for="password">Senha</label>
-            <input id="password" name="password" type="password" placeholder="Crie uma senha" required />
+            <input id="password" name="password" type="password" placeholder="Crie uma senha" minlength="5" maxlength="20" data-password-length-check required aria-describedby="password-length-hint" />
+            <small class="field-hint" id="password-length-hint" data-password-length-hint aria-live="polite">Use de 5 a 20 caracteres.</small>
           </div>
 
           <div class="field-group">

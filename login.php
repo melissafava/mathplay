@@ -12,12 +12,11 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim((string)($_POST['email'] ?? ''));
     $password = (string)($_POST['password'] ?? '');
-    $passwordLength = preg_match_all('/./us', $password);
 
     if ($email === '' || $password === '') {
         $errors[] = 'Informe e-mail e senha para entrar.';
-    } elseif ($passwordLength === false || $passwordLength < 6 || $passwordLength > 20) {
-        $errors[] = 'A senha deve ter entre 6 e 20 caracteres.';
+    } elseif (!isPasswordLengthValid($password)) {
+        $errors[] = 'A senha deve ter entre 5 e 20 caracteres.';
     } else {
         $stmt = db()->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
         $stmt->execute(['email' => $email]);
@@ -66,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div class="field-group">
             <label for="password">Senha</label>
-            <input id="password" name="password" type="password" placeholder="Sua senha" minlength="6" maxlength="20" required />
+            <input id="password" name="password" type="password" placeholder="Sua senha" minlength="5" maxlength="20" required />
           </div>
 
           <div class="form-actions">
