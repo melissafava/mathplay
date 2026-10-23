@@ -264,10 +264,10 @@ function handleCatalogAction(int $userId, int $itemId, string $type, string $act
 function catalogActionMessage(string $status): string
 {
     return match ($status) {
-        'purchased' => 'Item comprado! Ele já está disponível no seu avatar.',
+        'purchased' => 'Item comprado! Ele já está disponível no seu avatar :D',
         'equipped' => 'Item vestido no seu avatar!',
         'owned' => 'Este item já foi comprado. Escolha Vestir para equipá-lo.',
-        'insufficient' => 'quantidade de estrelas insuficiente',
+        'insufficient' => 'quantidade de estrelas insuficiente...',
         'not_owned' => 'Compre este item antes de vestir.',
         'invalid' => 'Selecione um item válido.',
         'csrf' => 'Sua sessão expirou. Atualize a página e tente novamente.',
