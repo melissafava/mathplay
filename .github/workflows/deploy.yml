@@ -14,12 +14,27 @@ jobs:
       - name: Baixar o código do repositório
         uses: actions/checkout@v4
 
-      - name: Substituir variaveis de ambiente no config.php
+      - name: Configurar credenciais do banco
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
         run: |
-          sed -i "s/__DB_HOST__/${{ secrets.DB_HOST }}/g" config.php
-          sed -i "s/__DB_NAME__/${{ secrets.DB_NAME }}/g" config.php
-          sed -i "s/__DB_USER__/${{ secrets.DB_USER }}/g" config.php
-          sed -i "s/__DB_PASS__/${{ secrets.DB_PASS }}/g" config.php
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          config = Path("config.php")
+          contents = config.read_text(encoding="utf-8")
+          for name in ("DB_HOST", "DB_NAME", "DB_USER", "DB_PASS"):
+              value = os.environ.get(name, "")
+              if not value:
+                  raise SystemExit(f"Required GitHub secret {name} is not configured")
+              escaped = value.replace("\\", "\\\\").replace("'", "\\'")
+              contents = contents.replace(f"__{name}__", escaped)
+          config.write_text(contents, encoding="utf-8")
+          PY
 
       - name: Publicar via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -33,4 +48,4 @@ jobs:
             **/.git*
             **/.git*/**
             **/.github/**
-            **/database/**
+            **/database/mathplay.db

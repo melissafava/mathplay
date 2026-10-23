@@ -9,14 +9,31 @@ function db(): PDO
 
     if ($pdo === null) {
         $pdo = createDatabaseConnection();
-        $pdo->exec('PRAGMA foreign_keys = ON;');
-
-        $sql = file_get_contents(__DIR__ . '/../database/schema.sql');
-        if ($sql !== false) {
-            $pdo->exec($sql);
+        $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $pdo->exec('PRAGMA foreign_keys = ON;');
+            $schemaPath = __DIR__ . '/../database/schema.sql';
+        } else {
+            $schemaPath = __DIR__ . '/../database/schema.mysql.sql';
         }
 
-        $historyColumns = array_column($pdo->query('PRAGMA table_info(game_history)')->fetchAll(), 'name');
+        $sql = file_get_contents($schemaPath);
+        if ($sql === false) {
+            throw new RuntimeException('Não foi possível carregar o esquema do banco de dados.');
+        }
+
+        if ($driver === 'mysql') {
+            foreach (explode(';', $sql) as $statement) {
+                if (trim($statement) !== '') {
+                    $pdo->exec($statement);
+                }
+            }
+            $historyColumns = array_column($pdo->query('SHOW COLUMNS FROM game_history')->fetchAll(), 'Field');
+        } else {
+            $pdo->exec($sql);
+            $historyColumns = array_column($pdo->query('PRAGMA table_info(game_history)')->fetchAll(), 'name');
+        }
+
         if (!in_array('stars_earned', $historyColumns, true)) {
             $pdo->exec('ALTER TABLE game_history ADD COLUMN stars_earned INTEGER NOT NULL DEFAULT 0');
         }
@@ -24,14 +41,30 @@ function db(): PDO
             $pdo->exec('ALTER TABLE game_history ADD COLUMN duration_seconds INTEGER NOT NULL DEFAULT 0');
         }
         if (!in_array('game_run_id', $historyColumns, true)) {
-            $pdo->exec('ALTER TABLE game_history ADD COLUMN game_run_id TEXT');
+            $runIdType = $driver === 'mysql' ? 'CHAR(32)' : 'TEXT';
+            $pdo->exec('ALTER TABLE game_history ADD COLUMN game_run_id ' . $runIdType);
         }
 
-        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_game_history_user_played ON game_history (user_id, played_at)');
-        $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_game_history_user_run ON game_history (user_id, game_run_id)');
+        if ($driver === 'sqlite') {
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_game_history_user_played ON game_history (user_id, played_at)');
+            $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_game_history_user_run ON game_history (user_id, game_run_id)');
+        } else {
+            $indexes = array_column($pdo->query('SHOW INDEX FROM game_history')->fetchAll(), 'Key_name');
+            if (!in_array('idx_game_history_user_played', $indexes, true)) {
+                $pdo->exec('CREATE INDEX idx_game_history_user_played ON game_history (user_id, played_at)');
+            }
+            if (!in_array('idx_game_history_user_run', $indexes, true)) {
+                $pdo->exec('CREATE UNIQUE INDEX idx_game_history_user_run ON game_history (user_id, game_run_id)');
+            }
+        }
     }
 
     return $pdo;
+}
+
+function insertIgnorePrefix(): string
+{
+    return db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' ? 'INSERT IGNORE INTO' : 'INSERT OR IGNORE INTO';
 }
 
 function redirect(string $path): void
@@ -105,26 +138,26 @@ function ensureUserProgress(int $userId): void
         'color' => '#ffcf4a',
     ]);
 
-    $settings = db()->prepare('INSERT OR IGNORE INTO user_settings (user_id, theme, font_scale) VALUES (:userId, :theme, :scale)');
+    $settings = db()->prepare(insertIgnorePrefix() . ' user_settings (user_id, theme, font_scale) VALUES (:userId, :theme, :scale)');
     $settings->execute([
         'userId' => $userId,
         'theme' => 'light',
         'scale' => 1.0,
     ]);
 
-    $defaultColorId = db()->prepare('SELECT id FROM catalog_items WHERE type = :type AND key_name = :key');
+    $defaultColorId = db()->prepare('SELECT id FROM catalog_items WHERE `type` = :type AND key_name = :key');
     $defaultColorId->execute(['type' => 'color', 'key' => 'amarelo']);
     $colorInfo = $defaultColorId->fetch();
     if ($colorInfo) {
-        $defaultColorPurchase = db()->prepare('INSERT OR IGNORE INTO user_inventory (user_id, item_id, purchased_at, equipped) VALUES (:userId, :itemId, datetime("now"), 1)');
+        $defaultColorPurchase = db()->prepare(insertIgnorePrefix() . ' user_inventory (user_id, item_id, purchased_at, equipped) VALUES (:userId, :itemId, CURRENT_TIMESTAMP, 1)');
         $defaultColorPurchase->execute(['userId' => $userId, 'itemId' => $colorInfo['id']]);
     }
 
-    $defaultFaceId = db()->prepare('SELECT id FROM catalog_items WHERE type = :type AND key_name = :key');
+    $defaultFaceId = db()->prepare('SELECT id FROM catalog_items WHERE `type` = :type AND key_name = :key');
     $defaultFaceId->execute(['type' => 'face', 'key' => 'rosto1']);
     $faceInfo = $defaultFaceId->fetch();
     if ($faceInfo) {
-        $defaultFacePurchase = db()->prepare('INSERT OR IGNORE INTO user_inventory (user_id, item_id, purchased_at, equipped) VALUES (:userId, :itemId, datetime("now"), 1)');
+        $defaultFacePurchase = db()->prepare(insertIgnorePrefix() . ' user_inventory (user_id, item_id, purchased_at, equipped) VALUES (:userId, :itemId, CURRENT_TIMESTAMP, 1)');
         $defaultFacePurchase->execute(['userId' => $userId, 'itemId' => $faceInfo['id']]);
     }
 }
@@ -153,7 +186,7 @@ function getUserSettings(int $userId): array
 
 function getCatalogItems(string $type): array
 {
-    $stmt = db()->prepare('SELECT c.*, i.equipped, i.user_id as owned_user_id FROM catalog_items c LEFT JOIN user_inventory i ON i.item_id = c.id AND i.user_id = :userId WHERE c.type = :type ORDER BY c.price ASC, c.label ASC');
+    $stmt = db()->prepare('SELECT c.*, i.equipped, i.user_id as owned_user_id FROM catalog_items c LEFT JOIN user_inventory i ON i.item_id = c.id AND i.user_id = :userId WHERE c.`type` = :type ORDER BY c.price ASC, c.label ASC');
     $userId = $_SESSION['user_id'] ?? 0;
     $stmt->execute(['userId' => $userId, 'type' => $type]);
     return $stmt->fetchAll();
@@ -162,7 +195,7 @@ function getCatalogItems(string $type): array
 function getInventoryForUser(int $userId, string $type): array
 {
     $stmt = db()->prepare(
-        'SELECT c.*, ui.equipped, ui.purchased_at, ui.user_id FROM catalog_items c INNER JOIN user_inventory ui ON ui.item_id = c.id WHERE c.type = :type AND ui.user_id = :userId ORDER BY c.price ASC, c.label ASC'
+        'SELECT c.*, ui.equipped, ui.purchased_at, ui.user_id FROM catalog_items c INNER JOIN user_inventory ui ON ui.item_id = c.id WHERE c.`type` = :type AND ui.user_id = :userId ORDER BY c.price ASC, c.label ASC'
     );
     $stmt->execute(['type' => $type, 'userId' => $userId]);
     return $stmt->fetchAll();
@@ -170,7 +203,7 @@ function getInventoryForUser(int $userId, string $type): array
 
 function getEquippedFace(int $userId): array
 {
-    $stmt = db()->prepare('SELECT c.* FROM catalog_items c INNER JOIN user_inventory ui ON ui.item_id = c.id WHERE c.type = :type AND ui.user_id = :userId AND ui.equipped = 1 LIMIT 1');
+    $stmt = db()->prepare('SELECT c.* FROM catalog_items c INNER JOIN user_inventory ui ON ui.item_id = c.id WHERE c.`type` = :type AND ui.user_id = :userId AND ui.equipped = 1 LIMIT 1');
     $stmt->execute(['type' => 'face', 'userId' => $userId]);
     $face = $stmt->fetch();
     return $face ?: ['asset_path' => 'rosto1.svg', 'label' => 'Rosto 1'];
@@ -178,7 +211,7 @@ function getEquippedFace(int $userId): array
 
 function getEquippedColor(int $userId): array
 {
-    $stmt = db()->prepare('SELECT c.* FROM catalog_items c INNER JOIN user_inventory ui ON ui.item_id = c.id WHERE c.type = :type AND ui.user_id = :userId AND ui.equipped = 1 LIMIT 1');
+    $stmt = db()->prepare('SELECT c.* FROM catalog_items c INNER JOIN user_inventory ui ON ui.item_id = c.id WHERE c.`type` = :type AND ui.user_id = :userId AND ui.equipped = 1 LIMIT 1');
     $stmt->execute(['type' => 'color', 'userId' => $userId]);
     $color = $stmt->fetch();
     return $color ?: ['color' => '#ffcf4a', 'label' => 'Amarelo'];
@@ -190,7 +223,7 @@ function handleCatalogAction(int $userId, int $itemId, string $type, string $act
         return 'invalid';
     }
 
-    $catalog = db()->prepare('SELECT * FROM catalog_items WHERE id = :itemId AND type = :type');
+    $catalog = db()->prepare('SELECT * FROM catalog_items WHERE id = :itemId AND `type` = :type');
     $catalog->execute(['itemId' => $itemId, 'type' => $type]);
     $item = $catalog->fetch();
     if (!$item) {
@@ -222,7 +255,7 @@ function handleCatalogAction(int $userId, int $itemId, string $type, string $act
 
         $insert = $database->prepare(
             'INSERT INTO user_inventory (user_id, item_id, purchased_at, equipped)
-             VALUES (:userId, :itemId, datetime("now"), 0)'
+             VALUES (:userId, :itemId, CURRENT_TIMESTAMP, 0)'
         );
         $insert->execute(['userId' => $userId, 'itemId' => $itemId]);
         $database->commit();
@@ -237,7 +270,7 @@ function handleCatalogAction(int $userId, int $itemId, string $type, string $act
     $unequip = $database->prepare(
         'UPDATE user_inventory SET equipped = 0
          WHERE user_id = :userId
-           AND item_id IN (SELECT id FROM catalog_items WHERE type = :type)'
+           AND item_id IN (SELECT id FROM catalog_items WHERE `type` = :type)'
     );
     $unequip->execute(['userId' => $userId, 'type' => $type]);
 
@@ -346,7 +379,7 @@ function ensureDefaultCatalogPurchases(int $userId): void
         $check = db()->prepare('SELECT 1 FROM user_inventory WHERE user_id = :userId AND item_id = :itemId');
         $check->execute(['userId' => $userId, 'itemId' => $item['id']]);
         if (!$check->fetch()) {
-            $insert = db()->prepare('INSERT INTO user_inventory (user_id, item_id, purchased_at, equipped) VALUES (:userId, :itemId, datetime("now"), 1)');
+            $insert = db()->prepare('INSERT INTO user_inventory (user_id, item_id, purchased_at, equipped) VALUES (:userId, :itemId, CURRENT_TIMESTAMP, 1)');
             $insert->execute(['userId' => $userId, 'itemId' => $item['id']]);
         }
     }
@@ -410,7 +443,7 @@ function recordGameResult(
     $database->beginTransaction();
 
     $history = $database->prepare(
-        'INSERT OR IGNORE INTO game_history
+        insertIgnorePrefix() . ' game_history
          (user_id, game_name, result, correct_answers, wrong_answers, stars_earned, duration_seconds, game_run_id)
          VALUES (:userId, :gameName, :result, :correct, :wrong, :stars, :duration, :runId)'
     );
@@ -433,12 +466,15 @@ function recordGameResult(
     $score = $database->prepare('INSERT INTO scores (user_id, game_name, points) VALUES (:userId, :gameName, :points)');
     $score->execute(['userId' => $userId, 'gameName' => $gameName, 'points' => $starsEarned]);
 
+    $levelCast = $database->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql'
+        ? 'CAST((xp + :starsForLevel) / 100 AS SIGNED)'
+        : 'CAST((xp + :starsForLevel) / 100 AS INTEGER)';
     $progress = $database->prepare(
         'UPDATE user_progress
          SET stars = stars + :starsForBalance,
              xp = xp + :starsForXp,
-             level = CAST((xp + :starsForLevel) / 100 AS INTEGER) + 1,
-             updated_at = datetime("now")
+             level = ' . $levelCast . ' + 1,
+             updated_at = CURRENT_TIMESTAMP
          WHERE user_id = :userId'
     );
     $progress->execute([
