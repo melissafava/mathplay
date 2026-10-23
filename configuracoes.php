@@ -4,6 +4,7 @@ requireAuth();
 
 $user = currentUser();
 $settingsError = '';
+$settingsMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_update'])) {
     $name = trim((string)($_POST['name'] ?? ''));
@@ -32,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_update'])) {
                 'userId' => $user['id'],
             ]);
         }
+        $settingsMessage = 'Configurações atualizadas com sucesso!';
     }
 }
 
@@ -61,6 +63,9 @@ $user = currentUser();
   <main class="page-shell">
     <?php if ($settingsError !== ''): ?>
       <div hidden data-alert-message="<?= htmlspecialchars($settingsError, ENT_QUOTES, 'UTF-8') ?>"></div>
+    <?php endif; ?>
+    <?php if ($settingsMessage !== ''): ?>
+      <div hidden data-alert-message="<?= htmlspecialchars($settingsMessage, ENT_QUOTES, 'UTF-8') ?>"></div>
     <?php endif; ?>
     <div class="settings-box">
       <div class="settings-header">Configurações</div>
