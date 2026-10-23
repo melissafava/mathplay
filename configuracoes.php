@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_update'])) {
 
     if (!isNameLengthValid($name)) {
         $settingsError = 'O nome deve ter no máximo 15 caracteres.';
+    } elseif ($password !== '' && !isPasswordLengthValid($password, 6, 20)) {
+        $settingsError = 'A nova senha deve ter entre 6 e 20 caracteres.';
     } elseif ($name !== '' && $email !== '') {
         if ($password !== '') {
             $stmt = db()->prepare('UPDATE users SET name = :name, email = :email, password_hash = :hash, role = :role WHERE id = :userId');
@@ -83,7 +85,14 @@ $user = currentUser();
 
         <div class="field-group">
           <label for="password">Senha</label>
-          <input id="password" name="password" type="password" placeholder="Nova senha" />
+          <div class="password-input-wrap">
+            <input id="password" name="password" type="password" placeholder="Nova senha" minlength="6" maxlength="20" data-password-length-check data-min-length="6" aria-describedby="password-length-hint" />
+            <button class="password-toggle" type="button" data-password-toggle="password" aria-label="Mostrar senha" aria-pressed="false">
+              <svg class="password-toggle__show" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="password-toggle__hide" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a15 15 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10 10 0 0 0 4-.8"/></svg>
+            </button>
+          </div>
+          <small class="field-hint" id="password-length-hint" data-password-length-hint aria-live="polite">Deixe em branco para manter a senha atual. A nova senha deve ter de 6 a 20 caracteres.</small>
         </div>
 
         <div class="field-group full">

@@ -4,18 +4,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('themeToggle');
   const emojiToggle = document.getElementById('emojiToggle');
   const fontButtons = document.querySelectorAll('[data-font]');
+  document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+    const input = document.getElementById(button.dataset.passwordToggle);
+    if (!input) return;
+
+    button.addEventListener('click', () => {
+      const showPassword = input.type === 'password';
+      input.type = showPassword ? 'text' : 'password';
+      button.setAttribute('aria-label', showPassword ? 'Ocultar senha' : 'Mostrar senha');
+      button.setAttribute('aria-pressed', String(showPassword));
+    });
+  });
+
   document.querySelectorAll('[data-password-length-check]').forEach((input) => {
     const hint = input.closest('.field-group')?.querySelector('[data-password-length-hint]');
+    const minimumLength = Number(input.dataset.minLength || 5);
+    const maximumLength = Number(input.maxLength || 20);
     const updatePasswordLength = () => {
       const length = Array.from(input.value).length;
-      const valid = length >= 5 && length <= 20;
+      const valid = length >= minimumLength && length <= maximumLength;
       input.setCustomValidity(input.value !== '' && !valid
-        ? 'A senha deve ter entre 5 e 20 caracteres.'
+        ? `A senha deve ter entre ${minimumLength} e ${maximumLength} caracteres.`
         : '');
       if (hint) {
-        hint.textContent = input.value === ''
-          ? 'Use de 5 a 20 caracteres.'
-          : `${length}/20 caracteres${valid ? '' : ' — a senha deve ter entre 5 e 20 caracteres.'}`;
+        if (input.value === '' && minimumLength === 6) {
+          hint.textContent = 'Deixe em branco para manter a senha atual. A nova senha deve ter de 6 a 20 caracteres.';
+        } else if (input.value === '') {
+          hint.textContent = `Use de ${minimumLength} a ${maximumLength} caracteres.`;
+        } else {
+          hint.textContent = `${length}/${maximumLength} caracteres${valid ? '' : ` — a senha deve ter entre ${minimumLength} e ${maximumLength} caracteres.`}`;
+        }
       }
     };
     input.addEventListener('input', updatePasswordLength);

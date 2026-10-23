@@ -98,10 +98,12 @@ function isNameLengthValid(string $name): bool
     return $matchedCharacters !== false && $matchedCharacters <= 15;
 }
 
-function isPasswordLengthValid(string $password): bool
+function isPasswordLengthValid(string $password, int $minimumLength = 5, int $maximumLength = 20): bool
 {
     $matchedCharacters = preg_match_all('/./us', $password);
-    return $matchedCharacters !== false && $matchedCharacters >= 5 && $matchedCharacters <= 20;
+    return $matchedCharacters !== false
+        && $matchedCharacters >= $minimumLength
+        && $matchedCharacters <= $maximumLength;
 }
 
 function currentUser(): ?array
