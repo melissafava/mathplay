@@ -37,15 +37,19 @@ $csrf = csrfToken();
             <input class="answer-input" id="answerInput" type="text" inputmode="numeric" autocomplete="off" />
             <div class="result-box" id="resultBox" aria-live="polite"></div>
             <div class="game-score-row">
-              <span><span class="standard-only">Acertos: </span><span class="emoji-only">✅ </span><strong id="scoreValue">0</strong></span>
-              <span><span class="standard-only">Estrelas: </span><img class="emoji-only icon-image" src="estrela.svg" alt="" aria-hidden="true"><strong id="earnedStarsValue">0</strong></span>
+              <span><span class="standard-only">Acertos: </span><span class="emoji-only">✅ </span>
+                <strong id="scoreValue">0</strong></span>
+              <span><span class="standard-only">Estrelas: </span><img class="emoji-only icon-image" src="estrela.svg" 
+                alt="" aria-hidden="true"><strong id="earnedStarsValue">0</strong></span>
             </div>
           </div>
         </div>
 
         <div class="game-timer">
-          <div class="game-time-label"><span class="standard-only">TEMPO: </span><span class="emoji-only">⏱️ </span><strong><span id="timeValue">30</span><span class="standard-only"> segundos</span></strong></div>
-          <div class="timer-track" role="progressbar" id="timerBar" aria-label="Tempo restante" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30">
+          <div class="game-time-label"><span class="standard-only">TEMPO: </span><span class="emoji-only">⏱️ </span>
+            <strong><span id="timeValue">30</span><span class="standard-only"> segundos</span></strong></div>
+          <div class="timer-track" role="progressbar" id="timerBar" aria-label="Tempo restante" aria-valuemin="0" 
+            aria-valuemax="30" aria-valuenow="30">
             <span class="timer-track__fill" id="timerFill"></span>
           </div>
           <div class="timer-stars" aria-label="Estrelas disponíveis nesta questão">
@@ -58,8 +62,10 @@ $csrf = csrfToken();
 
       <section class="number-pad" aria-label="Teclado numérico">
         <?php foreach (['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'backspace', 'equals'] as $key): ?>
-          <button type="button" class="keypad-key <?= $key === 'equals' ? 'keypad-key--action' : '' ?>" data-key="<?= htmlspecialchars($key) ?>"
-            aria-label="<?= $key === 'backspace' ? 'Apagar último número' : ($key === 'equals' ? 'Confirmar resposta' : $key) ?>">
+          <button type="button" class="keypad-key <?= $key === 'equals' ? 'keypad-key--action' : '' ?>
+              " data-key="<?= htmlspecialchars($key) ?>"
+            aria-label="<?= $key === 'backspace' ? 'Apagar último número' :
+              ($key === 'equals' ? 'Confirmar resposta' : $key) ?>">
             <?= $key === 'backspace' ? '⌫' : ($key === 'equals' ? '=' : $key) ?>
           </button>
         <?php endforeach; ?>
@@ -71,7 +77,9 @@ $csrf = csrfToken();
     <div class="game-over__card">
       <h2 id="gameOverTitle">Fim de Jogo</h2>
       <p id="gameOverFeedback" class="game-over__feedback" hidden></p>
-      <p id="gameOverSummary"><span class="standard-only" data-game-summary-standard></span><span class="emoji-only"><span data-game-summary-correct></span> ✅ · <span data-game-summary-stars></span> <img class="icon-image" src="estrela.svg" alt="" aria-hidden="true"></span></p>
+      <p id="gameOverSummary"><span class="standard-only" data-game-summary-standard></span>
+        <span class="emoji-only"><span data-game-summary-correct></span> ✅ · <span data-game-summary-stars>
+        </span> <img class="icon-image" src="estrela.svg" alt="" aria-hidden="true"></span></p>
       <p id="saveStatus" class="save-status" aria-live="polite">Salvando sua partida...</p>
       <button type="button" class="secondary-btn" id="retrySave" hidden>Tentar salvar novamente</button>
       <div class="game-over__actions">
